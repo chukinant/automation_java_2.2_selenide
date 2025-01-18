@@ -44,6 +44,7 @@ public class CardOrderTest {
     void emptyDateFieldTest() {
         formPage.fillForm("Барнаул", 3, "Артемий Иванов", "+71234567890");
         $x("//*[@data-test-id='date']//input").press(Keys.chord(Keys.SHIFT, Keys.HOME), Keys.BACK_SPACE);
+        $x("//*[@data-test-id='city']//input").click();
         $x("//*[@data-test-id='agreement']").click();
         $x("//button[descendant::*[*[contains(text(),'Забронировать')]]]").click();
 
