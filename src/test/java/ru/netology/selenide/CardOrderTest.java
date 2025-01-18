@@ -3,41 +3,26 @@ package ru.netology.selenide;
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.Selectors;
 import com.codeborne.selenide.Selenide;
-import com.codeborne.selenide.SelenideElement;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.Keys;
 
 import java.time.Duration;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$x;
 
 public class CardOrderTest {
+    private FormPage formPage = new FormPage();
 
     @BeforeEach
     void openWebpage() {
         Selenide.open("http://localhost:9999/");
     }
 
-    private String generateDate(int daysToAdd, String pattern) {
-        return LocalDate.now().plusDays(daysToAdd).format(DateTimeFormatter.ofPattern(pattern));
-    }
-
     @Test
     void happyPathTest() {
-        SelenideElement cityField = $x("//*[@data-test-id='city']//input");
-        SelenideElement dateField = $x("//*[@data-test-id='date']//input");
-        SelenideElement firstLastNameField = $x("//*[@data-test-id='name']//input");
-        SelenideElement phoneNumberField = $x("//*[@data-test-id='phone']//input");
-
-        cityField.setValue("Барнаул");
-        dateField.press(Keys.chord(Keys.SHIFT, Keys.HOME), Keys.BACK_SPACE);
-        dateField.setValue(generateDate(3, "dd.MM.yyyy"));
-        firstLastNameField.setValue("Артемий Иванов");
-        phoneNumberField.setValue("+71234567890");
+        formPage.fillForm("Барнаул", 3, "Артемий Иванов", "+71234567890");
         $x("//*[@data-test-id='agreement']").click();
         $x("//button[descendant::*[*[contains(text(),'Забронировать')]]]").click();
 
@@ -45,73 +30,86 @@ public class CardOrderTest {
                 should(Condition.visible, Duration.ofSeconds(15));
     }
 
-//    @Test
-//    void emptyNameFieldTest() {
-//        WebElement phoneNumberField = driver.findElement(By.xpath("//*[@data-test-id='phone']//input"));
-//
-//        phoneNumberField.sendKeys("+71234567890");
-//        driver.findElement(By.xpath("//*[@data-test-id='agreement']")).click();
-//        driver.findElement(By.xpath("//button[@role='button']")).click();
-//
-//        WebElement result = driver.findElement(By.xpath("//*[contains(@class, 'input_invalid')][@data-test-id='name']//*[contains(@class, 'input__sub')]"));
-//
-//        assertEquals("Поле обязательно для заполнения", result.getText().trim());
-//    }
-//
-//    @Test
-//    void nameFieldInvalidInputTest() {
-//        WebElement firstLastNameField = driver.findElement(By.xpath("//*[@data-test-id='name']//input"));
-//        WebElement phoneNumberField = driver.findElement(By.xpath("//*[@data-test-id='phone']//input"));
-//
-//        firstLastNameField.sendKeys("Артемий7 Иванов");
-//        phoneNumberField.sendKeys("+71234567890");
-//        driver.findElement(By.xpath("//*[@data-test-id='agreement']")).click();
-//        driver.findElement(By.xpath("//button[@role='button']")).click();
-//
-//        WebElement result = driver.findElement(By.xpath("//*[contains(@class, 'input_invalid')][@data-test-id='name']//*[contains(@class, 'input__sub')]"));
-//
-//        assertEquals("Имя и Фамилия указаные неверно. Допустимы только русские буквы, пробелы и дефисы.", result.getText().trim());
-//    }
-//
-//    @Test
-//    void phoneFieldInvalidInputTest() {
-//        WebElement firstLastNameField = driver.findElement(By.xpath("//*[@data-test-id='name']//input"));
-//        WebElement phoneNumberField = driver.findElement(By.xpath("//*[@data-test-id='phone']//input"));
-//
-//        firstLastNameField.sendKeys("Артемий Иванов");
-//        phoneNumberField.sendKeys("+7123456789");
-//        driver.findElement(By.xpath("//*[@data-test-id='agreement']")).click();
-//        driver.findElement(By.xpath("//button[@role='button']")).click();
-//
-//        WebElement result = driver.findElement(By.xpath("//*[contains(@class, 'input_invalid')][@data-test-id='phone']//*[contains(@class, 'input__sub')]"));
-//
-//        assertEquals("Телефон указан неверно. Должно быть 11 цифр, например, +79012345678.", result.getText().trim());
-//    }
-//
-//    @Test
-//    void EmptyPhoneFieldTest() {
-//        WebElement firstLastNameField = driver.findElement(By.xpath("//*[@data-test-id='name']//input"));
-//
-//        firstLastNameField.sendKeys("Артемий Иванов");
-//        driver.findElement(By.xpath("//*[@data-test-id='agreement']")).click();
-//        driver.findElement(By.xpath("//button[@role='button']")).click();
-//
-//        WebElement result = driver.findElement(By.xpath("//*[contains(@class, 'input_invalid')][@data-test-id='phone']//*[contains(@class, 'input__sub')]"));
-//
-//        assertEquals("Поле обязательно для заполнения", result.getText().trim());
-//    }
-//
-//    @Test
-//    void uncheckedAgreementTest() {
-//        WebElement firstLastNameField = driver.findElement(By.xpath("//*[@data-test-id='name']//input"));
-//        WebElement phoneNumberField = driver.findElement(By.xpath("//*[@data-test-id='phone']//input"));
-//
-//        firstLastNameField.sendKeys("Артемий Иванов");
-//        phoneNumberField.sendKeys("+71234567890");
-//        driver.findElement(By.xpath("//button[@role='button']")).click();
-//
-//        WebElement result = driver.findElement(By.xpath("//*[@data-test-id='agreement']"));
-//
-//        assertTrue(result.isDisplayed());
-//    }
+    @Test
+    void emptyCityFieldTest() {
+        formPage.fillForm("", 3, "Артемий Иванов", "+71234567890");
+        $x("//*[@data-test-id='agreement']").click();
+        $x("//button[descendant::*[*[contains(text(),'Забронировать')]]]").click();
+
+        $x("//*[contains(@class, 'input_invalid')][@data-test-id='city']//*[contains(@class, 'input__sub')]")
+                .shouldHave(Condition.exactText("Поле обязательно для заполнения"));
+    }
+
+    @Test
+    void emptyDateFieldTest() {
+        formPage.fillForm("Барнаул", 3, "Артемий Иванов", "+71234567890");
+        $x("//*[@data-test-id='date']//input").press(Keys.chord(Keys.SHIFT, Keys.HOME), Keys.BACK_SPACE);
+        $x("//*[@data-test-id='agreement']").click();
+        $x("//button[descendant::*[*[contains(text(),'Забронировать')]]]").click();
+
+        $x("//*[@data-test-id='date']//*[contains(@class, 'input_invalid')]//*[contains(@class, 'input__sub')]")
+                .shouldHave(Condition.exactText("Неверно введена дата"));
+    }
+
+    @Test
+    void emptyNameFieldTest() {
+        formPage.fillForm("Барнаул", 3, "", "+71234567890");
+        $x("//*[@data-test-id='agreement']").click();
+        $x("//button[descendant::*[*[contains(text(),'Забронировать')]]]").click();
+
+        $x("//*[contains(@class, 'input_invalid')][@data-test-id='name']//*[contains(@class, 'input__sub')]")
+                .shouldHave(Condition.exactText("Поле обязательно для заполнения"));
+    }
+
+
+    @Test
+    void emptyPhoneFieldTest() {
+        formPage.fillForm("Барнаул", 3, "Артемий Иванов", "");
+        $x("//*[@data-test-id='agreement']").click();
+        $x("//button[descendant::*[*[contains(text(),'Забронировать')]]]").click();
+
+        $x("//*[contains(@class, 'input_invalid')][@data-test-id='phone']//*[contains(@class, 'input__sub')]")
+                .shouldHave(Condition.exactText("Поле обязательно для заполнения"));
+    }
+
+
+
+    @Test
+    void cityFieldInvalidInputTest() {
+        formPage.fillForm("Барнаулi", 3, "Артемий Иванов", "+71234567890");
+        $x("//*[@data-test-id='agreement']").click();
+        $x("//button[descendant::*[*[contains(text(),'Забронировать')]]]").click();
+
+        $x("//*[contains(@class, 'input_invalid')][@data-test-id='city']//*[contains(@class, 'input__sub')]")
+                .shouldHave(Condition.exactText("Доставка в выбранный город недоступна"));
+    }
+
+    @Test
+    void nameFieldInvalidInputTest() {
+        formPage.fillForm("Барнаул", 3, "Artemy Ivanov", "+71234567890");
+        $x("//*[@data-test-id='agreement']").click();
+        $x("//button[descendant::*[*[contains(text(),'Забронировать')]]]").click();
+
+        $x("//*[contains(@class, 'input_invalid')][@data-test-id='name']//*[contains(@class, 'input__sub')]")
+                .shouldHave(Condition.exactText("Имя и Фамилия указаные неверно. Допустимы только русские буквы, пробелы и дефисы."));
+    }
+
+    @Test
+    void phoneFieldInvalidInputTest() {
+        formPage.fillForm("Барнаул", 3, "Артемий Иванов", "81234567890");
+        $x("//*[@data-test-id='agreement']").click();
+        $x("//button[descendant::*[*[contains(text(),'Забронировать')]]]").click();
+
+        $x("//*[contains(@class, 'input_invalid')][@data-test-id='phone']//*[contains(@class, 'input__sub')]")
+                .shouldHave(Condition.text("Телефон указан неверно"));
+    }
+
+    @Test
+    void uncheckedAgreementTest() {
+        formPage.fillForm("Барнаул", 3, "Артемий Иванов", "+71234567890");
+        $x("//button[descendant::*[*[contains(text(),'Забронировать')]]]").click();
+
+        $x("//*[@data-test-id='agreement']").
+                should(Condition.visible);
+    }
 }
