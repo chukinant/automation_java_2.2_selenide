@@ -22,17 +22,18 @@ public class CardOrderTest {
 
     @Test
     void happyPathTest() {
-        formPage.fillForm("Барнаул", 3, "Артемий Иванов", "+71234567890");
+        formPage.fillForm("Барнаул", 7, "Артемий Иванов", "+71234567890");
         $x("//*[@data-test-id='agreement']").click();
         $x("//button[descendant::*[*[contains(text(),'Забронировать')]]]").click();
 
-        $(Selectors.withText("Встреча успешно забронирована")).
-                should(Condition.visible, Duration.ofSeconds(15));
+        $(Selectors.withText("Успешно")).shouldBe(Condition.visible, Duration.ofSeconds(15));
+        $x("//*[@data-test-id='notification']//*[starts-with(text(),'Встреча успешно забронирована на')]").
+                should(Condition.visible, Duration.ofSeconds(15)).shouldHave(Condition.text(formPage.date));
     }
 
     @Test
     void emptyCityFieldTest() {
-        formPage.fillForm("", 3, "Артемий Иванов", "+71234567890");
+        formPage.fillForm("", 7, "Артемий Иванов", "+71234567890");
         $x("//*[@data-test-id='agreement']").click();
         $x("//button[descendant::*[*[contains(text(),'Забронировать')]]]").click();
 
@@ -42,7 +43,7 @@ public class CardOrderTest {
 
     @Test
     void emptyDateFieldTest() {
-        formPage.fillForm("Барнаул", 3, "Артемий Иванов", "+71234567890");
+        formPage.fillForm("Барнаул", 7, "Артемий Иванов", "+71234567890");
         $x("//*[@data-test-id='date']//input").press(Keys.chord(Keys.SHIFT, Keys.HOME), Keys.BACK_SPACE);
         $x("//*[@data-test-id='city']//input").click();
         $x("//*[@data-test-id='agreement']").click();
@@ -54,7 +55,7 @@ public class CardOrderTest {
 
     @Test
     void emptyNameFieldTest() {
-        formPage.fillForm("Барнаул", 3, "", "+71234567890");
+        formPage.fillForm("Барнаул", 7, "", "+71234567890");
         $x("//*[@data-test-id='agreement']").click();
         $x("//button[descendant::*[*[contains(text(),'Забронировать')]]]").click();
 
@@ -65,7 +66,7 @@ public class CardOrderTest {
 
     @Test
     void emptyPhoneFieldTest() {
-        formPage.fillForm("Барнаул", 3, "Артемий Иванов", "");
+        formPage.fillForm("Барнаул", 7, "Артемий Иванов", "");
         $x("//*[@data-test-id='agreement']").click();
         $x("//button[descendant::*[*[contains(text(),'Забронировать')]]]").click();
 
@@ -74,10 +75,9 @@ public class CardOrderTest {
     }
 
 
-
     @Test
     void cityFieldInvalidInputTest() {
-        formPage.fillForm("Барнаулi", 3, "Артемий Иванов", "+71234567890");
+        formPage.fillForm("Барнаулi", 7, "Артемий Иванов", "+71234567890");
         $x("//*[@data-test-id='agreement']").click();
         $x("//button[descendant::*[*[contains(text(),'Забронировать')]]]").click();
 
@@ -87,7 +87,7 @@ public class CardOrderTest {
 
     @Test
     void nameFieldInvalidInputTest() {
-        formPage.fillForm("Барнаул", 3, "Artemy Ivanov", "+71234567890");
+        formPage.fillForm("Барнаул", 7, "Artemy Ivanov", "+71234567890");
         $x("//*[@data-test-id='agreement']").click();
         $x("//button[descendant::*[*[contains(text(),'Забронировать')]]]").click();
 
@@ -97,7 +97,7 @@ public class CardOrderTest {
 
     @Test
     void phoneFieldInvalidInputTest() {
-        formPage.fillForm("Барнаул", 3, "Артемий Иванов", "81234567890");
+        formPage.fillForm("Барнаул", 7, "Артемий Иванов", "81234567890");
         $x("//*[@data-test-id='agreement']").click();
         $x("//button[descendant::*[*[contains(text(),'Забронировать')]]]").click();
 
@@ -107,7 +107,7 @@ public class CardOrderTest {
 
     @Test
     void uncheckedAgreementTest() {
-        formPage.fillForm("Барнаул", 3, "Артемий Иванов", "+71234567890");
+        formPage.fillForm("Барнаул", 7, "Артемий Иванов", "+71234567890");
         $x("//button[descendant::*[*[contains(text(),'Забронировать')]]]").click();
 
         $x("//*[@data-test-id='agreement']").
