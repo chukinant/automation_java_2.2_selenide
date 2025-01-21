@@ -12,7 +12,7 @@ import java.time.Duration;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$x;
 
-public class CardOrderTest {
+public class CardOrderTest_task2 {
     private FormPage formPage = new FormPage();
 
     @BeforeEach
